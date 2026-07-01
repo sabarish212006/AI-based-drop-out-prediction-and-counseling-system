@@ -1,90 +1,210 @@
-# AI-based-drop-out-prediction-and-counseling-system
+# AI-Based Student Dropout Prediction and Counselling System
 
-## **Project Statement**
+## Project Overview
 
-Student dropout is a major challenge in educational institutions. Students may discontinue their studies due to low attendance, poor academic performance, financial difficulties, or personal issues. This project is developed to predict the likelihood of student dropout using machine learning techniques and provide counseling recommendations to support at-risk students.
+The AI-Based Student Dropout Prediction and Counselling System is a full-stack web application developed to help educational institutions identify students who are at risk of dropping out using Artificial Intelligence and Machine Learning. The system analyzes student academic performance and attendance data, predicts dropout risk, and provides counselling recommendations to improve student retention and academic success.
 
-## **Project Objective**
+---
 
-The main objective of this project is to identify students who are at risk of dropping out and provide timely counseling suggestions to improve student retention and academic success.
+## Project Objective
 
-## **Objectives**
+The primary objective of this project is to identify students who are at risk of dropping out at an early stage and help educational institutions provide timely counselling and academic support.
 
-* To collect student academic and attendance data.
-* To analyze factors affecting student dropout.
-* To predict dropout risk using machine learning algorithms.
-* To identify students who require academic support.
-* To provide counseling recommendations for at-risk students.
-* To improve student retention and educational outcomes.
+---
 
-## **Features**
+## Objectives
 
-* Student Data Management
-* Attendance Tracking
-* Academic Performance Analysis
-* Dropout Risk Prediction
-* Counseling Recommendation System
-* Dashboard and Analytics
-* Report Generation
+- Collect student academic and attendance data.
+- Analyze factors affecting student dropout.
+- Predict dropout risk using Machine Learning.
+- Identify students requiring academic intervention.
+- Provide counselling recommendations for at-risk students.
+- Improve student retention and academic performance.
+- Generate reports for faculty and administrators.
 
-## **Technologies Used**
+---
 
-### **Frontend**
+## Features
 
-* HTML
-* CSS
-* JavaScript
+- Secure Login System
+- Student Management
+- Dashboard and Analytics
+- Attendance Monitoring
+- Academic Performance Tracking
+- AI-Based Dropout Prediction
+- Counselling Recommendation System
+- Prediction History
+- Report Generation
+- Email Notification (Future Enhancement)
 
-### **Backend**
+---
 
-* Python
+## System Modules
 
-### **Machine Learning**
+### Authentication Module
 
-* Scikit-Learn
-* Pandas
-* NumPy
+- Secure Login
+- Role-Based Access
+- Session Management
 
-### **Visualization**
+### Student Management Module
 
-* Matplotlib
+- Add Student
+- Edit Student
+- Delete Student
+- Search Student
+- View Student Details
 
-### **Tools**
+### Attendance Monitoring Module
 
-* Jupyter Notebook
-* VS Code
-* GitHub
+- Attendance Tracking
+- Attendance Analysis
 
-## **Modules**
+### Academic Performance Module
 
-### **1. Student Management Module**
+- Marks Management
+- GPA Analysis
+- Study Hours Tracking
+- Backlog Management
 
-Manages student information, attendance records, and academic details.
+### AI Prediction Module
 
-### **2. Attendance Monitoring Module**
+- Dropout Risk Prediction
+- Risk Score Calculation
+- Probability Prediction
+- AI-Based Recommendation
 
-Tracks student attendance and identifies irregular attendance patterns.
+### Counselling Module
 
-### **3. Academic Performance Module**
+- Counselling Recommendations
+- Student Risk Monitoring
+- Faculty Guidance
 
-Stores and analyzes student marks, grades, and academic records.
+### Dashboard Module
 
-### **4. Dropout Prediction Module**
+- Live Statistics
+- Prediction Analytics
+- Risk Distribution
+- Student Summary
 
-Uses machine learning algorithms to predict whether a student is at risk of dropping out.
+### Report Module
 
-### **5. Counseling Recommendation Module**
+- Prediction Reports
+- Student Reports
+- Performance Reports
 
-Provides personalized suggestions and counseling recommendations for students identified as high risk.
+---
 
-### **6. Dashboard Module**
+## Technologies Used
 
-Displays dropout statistics, prediction results, and student performance insights.
+### Frontend
 
-### **7. Report Module**
+- React.js
+- React Router
+- Axios
+- CSS3
+- Bootstrap / Tailwind CSS
 
-Generates reports for teachers and administrators to monitor student progress.
+### Backend
 
-## **Expected Outcome**
+- Python
+- Flask
+- Flask-CORS
 
-The system predicts student dropout risk based on academic and attendance data. It helps educational institutions identify at-risk students early and provide appropriate counseling support, thereby reducing dropout rates and improving student success.
+### Machine Learning
+
+- Scikit-Learn
+- Pandas
+- NumPy
+- Joblib
+
+### Database
+
+- MySQL
+
+### Data Visualization
+
+- Recharts / Chart.js
+- Matplotlib
+
+### Development Tools
+
+- Visual Studio Code
+- Git
+- GitHub
+- Jupyter Notebook
+- Postman
+
+---
+
+## Machine Learning
+
+The prediction model analyzes the following student attributes:
+
+- Attendance
+- Marks
+- GPA
+- Study Hours
+- Backlogs
+
+The model classifies students into:
+
+- Low Risk
+- Medium Risk
+- High Risk
+
+Based on the prediction, the system provides appropriate counselling recommendations.
+
+---
+
+## Project Structure
+
+```text
+AI-Based-Student-Dropout-Prediction-System/
+│
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   └── package.json
+│
+├── backend/
+│   ├── app.py
+│   ├── ml/
+│   ├── routes/
+│   ├── models/
+│   └── requirements.txt
+│
+├── database/
+│   └── schema.sql
+│
+└── README.md
+```
+
+---
+
+## Future Enhancements
+
+- JWT Authentication
+- Prediction History
+- PDF Report Generation
+- Email Notification
+- Faculty Dashboard
+- Parent Portal
+- Real-Time Analytics
+- Cloud Deployment using Render and Vercel
+
+---
+
+## Expected Outcome
+
+The system enables educational institutions to identify students who are at risk of dropping out using AI-based prediction techniques. It assists faculty in providing timely counselling and academic support, thereby improving student retention and overall academic performance.
+
+---
+
+## Developed By
+
+Sabarish S
+
+Final Year Engineering Student
+
+AI-Based Student Dropout Prediction and Counselling System
