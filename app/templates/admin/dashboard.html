@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2>🏛️ Admin Dashboard</h2>
+
+            <p class="text-muted">
+                College management overview with AI-driven risk analytics.
+            </p>
+
+        </div>
+
+        <div>
+
+            <a href="/admin/reports" class="btn btn-outline-secondary">
+                View Full Reports
+            </a>
+
+        </div>
+
+    </div>
+
+    <div class="row g-3">
+
+        <div class="col-lg-3">
+
+            <div class="card shadow-sm border-start border-4 border-primary">
+
+                <div class="card-body">
+
+                    <p class="text-uppercase text-muted small mb-2">Total Students</p>
+
+                    <h3 class="mb-0">{{ stats.total_students }}</h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-3">
+
+            <div class="card shadow-sm border-start border-4 border-success">
+
+                <div class="card-body">
+
+                    <p class="text-uppercase text-muted small mb-2">Counsellors</p>
+
+                    <h3 class="mb-0">{{ stats.total_counsellors }}</h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-3">
+
+            <div class="card shadow-sm border-start border-4 border-warning">
+
+                <div class="card-body">
+
+                    <p class="text-uppercase text-muted small mb-2">Predictions</p>
+
+                    <h3 class="mb-0">{{ stats.total_predictions }}</h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-3">
+
+            <div class="card shadow-sm border-start border-4 border-danger">
+
+                <div class="card-body">
+
+                    <p class="text-uppercase text-muted small mb-2">High Risk</p>
+
+                    <h3 class="mb-0">{{ stats.high_risk_students }}</h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row g-3 mt-4">
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header bg-white border-bottom">
+
+                    <strong>Latest Students</strong>
+
+                </div>
+
+                <div class="card-body p-0">
+
+                    <ul class="list-group list-group-flush">
+
+                        {% if stats.recent_students %}
+
+                            {% for student in stats.recent_students %}
+
+                                <li class="list-group-item py-3">
+
+                                    <div class="fw-semibold">{{ student.full_name }}</div>
+
+                                    <small class="text-muted">
+                                        {{ student.department }} · Year {{ student.year_of_study }}
+                                    </small>
+
+                                </li>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <li class="list-group-item text-muted">
+                                No recent student registrations.
+                            </li>
+
+                        {% endif %}
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header bg-white border-bottom">
+
+                    <strong>Risk Distribution</strong>
+
+                </div>
+
+                <div class="card-body">
+
+                    <canvas id="riskChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header bg-white border-bottom">
+
+                    <strong>Students by Year</strong>
+
+                </div>
+
+                <div class="card-body">
+
+                    <canvas id="yearChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row g-3 mt-4">
+
+        <div class="col-lg-6">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header bg-white border-bottom">
+
+                    <strong>Department Risk Overview</strong>
+
+                </div>
+
+                <div class="card-body">
+
+                    <canvas id="departmentRiskChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-6">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header bg-white border-bottom">
+
+                    <strong>Recent Predictions</strong>
+
+                </div>
+
+                <div class="card-body p-0">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-sm mb-0">
+
+                            <thead class="table-light">
+
+                                <tr>
+
+                                    <th>Student</th>
+                                    <th>Risk</th>
+                                    <th>Score</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {% if stats.recent_predictions %}
+
+                                    {% for prediction in stats.recent_predictions %}
+
+                                        <tr>
+
+                                            <td>{{ prediction.roll_no }}</td>
+                                            <td>{{ prediction.risk_level }}</td>
+                                            <td>{{ prediction.probability }}%</td>
+
+                                        </tr>
+
+                                    {% endfor %}
+
+                                {% else %}
+
+                                    <tr>
+
+                                        <td colspan="3" class="text-center text-muted py-3">
+                                            No recent AI predictions available.
+                                        </td>
+
+                                    </tr>
+
+                                {% endif %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const riskData = JSON.parse('{{ [stats.high_risk_students, stats.medium_risk_students, stats.low_risk_students] | tojson | safe }}');
+const yearLabels = JSON.parse('{{ stats.year_student_count | map(attribute="year_of_study") | list | tojson | safe }}');
+const yearData = JSON.parse('{{ stats.year_student_count | map(attribute="student_count") | list | tojson | safe }}');
+const departmentLabels = JSON.parse('{{ stats.department_risk_distribution | map(attribute="department") | list | tojson | safe }}');
+const departmentHigh = JSON.parse('{{ stats.department_risk_distribution | map(attribute="high_count") | list | tojson | safe }}');
+const departmentMedium = JSON.parse('{{ stats.department_risk_distribution | map(attribute="medium_count") | list | tojson | safe }}');
+const departmentLow = JSON.parse('{{ stats.department_risk_distribution | map(attribute="low_count") | list | tojson | safe }}');
+
+const riskCtx = document.getElementById("riskChart");
+new Chart(riskCtx, {
+    type: "doughnut",
+    data: {
+        labels: ["High", "Medium", "Low"],
+        datasets: [{
+            data: riskData,
+            backgroundColor: ["#dc3545", "#ffc107", "#198754"]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: "bottom" }
+        }
+    }
+});
+
+const yearCtx = document.getElementById("yearChart");
+new Chart(yearCtx, {
+    type: "bar",
+    data: {
+        labels: yearLabels.map(year => `Year ${year}`),
+        datasets: [{
+            label: "Students",
+            data: yearData,
+            backgroundColor: "#0d6efd"
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+const departmentCtx = document.getElementById("departmentRiskChart");
+new Chart(departmentCtx, {
+    type: "bar",
+    data: {
+        labels: departmentLabels,
+        datasets: [
+            {
+                label: "High Risk",
+                data: departmentHigh,
+                backgroundColor: "#dc3545"
+            },
+            {
+                label: "Medium Risk",
+                data: departmentMedium,
+                backgroundColor: "#ffc107"
+            },
+            {
+                label: "Low Risk",
+                data: departmentLow,
+                backgroundColor: "#198754"
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+</script>
+
+{% endblock %}

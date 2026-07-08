@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>👨‍🎓 Counsellor Student Detail</h2>
+            <p class="text-muted">Review AI prediction, risk factors, counselling notes, and follow-up actions.</p>
+        </div>
+        <div>
+            <a href="/counsellor/student/{{ student.student_id }}/pdf" class="btn btn-danger me-2">
+                <i class="bi bi-file-pdf"></i> Download PDF Report
+            </a>
+            <a href="/counsellor/dashboard" class="btn btn-secondary">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="row gy-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">Student Profile</div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tr><th>Name</th><td>{{ student.full_name }}</td></tr>
+                        <tr><th>Roll No</th><td>{{ student.roll_no }}</td></tr>
+                        <tr><th>Department</th><td>{{ student.department }}</td></tr>
+                        <tr><th>Year</th><td>{{ student.year_of_study }}</td></tr>
+                        <tr><th>Email</th><td>{{ student.email }}</td></tr>
+                        <tr><th>Phone</th><td>{{ student.phone or 'N/A' }}</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">AI Prediction Summary</div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tr><th>Prediction</th>
+                            <td>
+                                {% if prediction.prediction == 1 %}
+                                    <span class="badge bg-danger">Dropout Risk</span>
+                                {% else %}
+                                    <span class="badge bg-success">Safe</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr><th>Risk Level</th>
+                            <td>
+                                {% if prediction.risk_level == 'High' %}
+                                    <span class="badge bg-danger">High</span>
+                                {% elif prediction.risk_level == 'Medium' %}
+                                    <span class="badge bg-warning text-dark">Medium</span>
+                                {% else %}
+                                    <span class="badge bg-success">Low</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr><th>Risk Score</th><td>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-{{ 'danger' if prediction.risk_level == 'High' else 'warning text-dark' if prediction.risk_level == 'Medium' else 'success' }}">{{ prediction.risk_level or 'Low' }}</span>
+                                <span>{{ prediction.probability if prediction.probability is defined else prediction.score }}%</span>
+                            </div>
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div class="progress-bar bg-{{ 'danger' if prediction.risk_level == 'High' else 'warning' if prediction.risk_level == 'Medium' else 'success' }}" style="width: {{ prediction.probability if prediction.probability is defined else prediction.score }}%"></div>
+                            </div>
+                        </td></tr>
+                        <tr><th>Message</th><td>{{ prediction.message }}</td></tr>
+                        <tr><th>Recommendation</th><td>{{ prediction.recommendation if prediction.recommendation is defined else prediction.suggestion }}</td></tr>
+                        <tr><th>Prediction Date</th><td>{{ prediction.prediction_date if prediction.prediction_date is defined else prediction.predicted_on }}</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row gy-4 mt-3">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">Counselling Plan</div>
+                <div class="card-body">
+                    <h5>{{ recommendation.title }}</h5>
+                    <p class="mb-2"><strong>Priority:</strong> {{ recommendation.priority }}</p>
+                    <ul>
+                        {% for action in recommendation.actions %}
+                        <li>{{ action }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">Add Counselling Note</div>
+                <div class="card-body">
+                    <form method="post" action="/counsellor/student/{{ student.student_id }}/notes">
+                        <div class="mb-3">
+                            <label class="form-label">Recommendation</label>
+                            <textarea class="form-control" name="recommendation" rows="4" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Follow-up Date</label>
+                            <input class="form-control" type="date" name="follow_up_date" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Note</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row gy-4 mt-3">
+        <div class="col">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">Counselling Notes</div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Counsellor</th>
+                                    <th>Status</th>
+                                    <th>Recommendation</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if counselling_notes %}
+                                    {% for note in counselling_notes %}
+                                    <tr>
+                                        <td>{{ note.follow_up_date }}</td>
+                                        <td>{{ note.counsellor_name or 'N/A' }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if note.status == 'Completed' else 'info' if note.status == 'In Progress' else 'primary' if note.status == 'Scheduled' else 'secondary' if note.status == 'Missed' else 'warning text-dark' }}">
+                                                {{ note.status }}
+                                            </span>
+                                        </td>
+                                        <td>{{ note.recommendation }}</td>
+                                        <td>
+                                            <form method="post" action="/counsellor/student/{{ student.student_id }}/notes/{{ note.recommendation_id }}/status" class="d-inline">
+                                                <select name="status" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
+                                                    <option value="Pending" {% if note.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                                    <option value="Scheduled" {% if note.status == 'Scheduled' %}selected{% endif %}>Scheduled</option>
+                                                    <option value="In Progress" {% if note.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                                    <option value="Completed" {% if note.status == 'Completed' %}selected{% endif %}>Completed</option>
+                                                    <option value="Missed" {% if note.status == 'Missed' %}selected{% endif %}>Missed</option>
+                                                </select>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-3">No counselling notes added yet.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

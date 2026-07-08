@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3>📊 Academic Summary & AI Prediction</h3>
+            <p class="text-muted">Complete overview of your academic performance and AI-driven dropout risk assessment</p>
+        </div>
+        <div>
+            <a href="/student/dashboard" class="btn btn-outline-secondary">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Student Identity Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h4>{{ student.full_name }}</h4>
+                    <p class="mb-1"><strong>Roll:</strong> {{ student.roll_no }} &nbsp;|&nbsp; <strong>Dept:</strong> {{ student.department }} &nbsp;|&nbsp; <strong>Year:</strong> {{ student.year_of_study }}</p>
+                    <p class="mb-0 text-muted"><strong>Email:</strong> {{ student.email }} &nbsp;|&nbsp; <strong>Phone:</strong> {{ student.phone or 'N/A' }}</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="badge bg-{{ 'danger' if prediction.risk_level == 'High' else 'warning' if prediction.risk_level == 'Medium' else 'success' }} fs-6">
+                        {{ prediction.risk_level or 'N/A' }} RISK
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-warning">{{ error }}</div>
+    {% else %}
+
+    <!-- Academic Data Card -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <strong>📚 Latest Academic Performance</strong>
+                </div>
+                <div class="card-body">
+                    {% if academic_data %}
+                    <div class="row text-center">
+                        <div class="col-4 border-end">
+                            <h5 class="text-primary mb-0">{{ academic_data.cgpa }}</h5>
+                            <small class="text-muted">CGPA (out of 10)</small>
+                        </div>
+                        <div class="col-4 border-end">
+                            <h5 class="text-success mb-0">{{ academic_data.attendance }}%</h5>
+                            <small class="text-muted">Attendance</small>
+                        </div>
+                        <div class="col-4">
+                            <h5 class="text-warning mb-0">{{ academic_data.backlog_count }}</h5>
+                            <small class="text-muted">Backlogs</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-6 border-end">
+                            <small class="text-muted">Internal Marks</small>
+                            <h5 class="mb-0">{{ academic_data.internal_marks }}</h5>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Study Hours/Day</small>
+                            <h5 class="mb-0">{{ academic_data.study_hours }}</h5>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center mb-0">No academic data available. Please add academic records first.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Prediction Card -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-dark text-white">
+                    <strong>🤖 AI Prediction</strong>
+                </div>
+                <div class="card-body text-center">
+                    {% if prediction %}
+                    <div class="mb-3">
+                        <span class="badge bg-{{ 'danger' if prediction.risk_level == 'High' else 'warning' if prediction.risk_level == 'Medium' else 'success' }} fs-5">
+                            {{ prediction.risk_level }}
+                        </span>
+                    </div>
+                    <h3 class="mb-0">{{ prediction.probability or prediction.score or 0 }}%</h3>
+                    <small class="text-muted">Dropout Probability</small>
+
+                    <div class="progress mt-2 mb-3" style="height: 8px;">
+                        <div class="progress-bar bg-{{ 'danger' if prediction.risk_level == 'High' else 'warning' if prediction.risk_level == 'Medium' else 'success' }}"
+                             style="width: {{ prediction.probability or prediction.score or 0 }}%">
+                        </div>
+                    </div>
+
+                    <p class="small text-muted mb-0">
+                        <strong>Confidence:</strong> {{ prediction.confidence_score or prediction.probability or 0 }}%
+                    </p>
+                    <p class="small text-muted mb-0">
+                        <strong>Model:</strong> {{ prediction.model_version or 'v1' }}
+                    </p>
+                    <p class="small text-muted mb-0">
+                        <strong>Date:</strong> {{ prediction.prediction_date or prediction.predicted_on or '-' }}
+                    </p>
+                    {% else %}
+                    <p class="text-muted">No prediction available.</p>
+                    <p class="small text-muted">Add academic records to generate a prediction.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Recommendation -->
+    {% if prediction and (prediction.recommendation or prediction.suggestion or prediction.explanation) %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-info text-white">
+            <strong>💡 AI Recommendation</strong>
+        </div>
+        <div class="card-body">
+            <p class="mb-1"><strong>{{ prediction.message or '' }}</strong></p>
+            <hr>
+            <p class="mb-0">{{ prediction.recommendation or prediction.suggestion or prediction.explanation }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Semester-wise Performance -->
+    {% if academic_history %}
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <strong>📈 Semester-wise Academic Performance</strong>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Semester</th>
+                            <th>CGPA</th>
+                            <th>Attendance</th>
+                            <th>Internal Marks</th>
+                            <th>Backlogs</th>
+                            <th>Study Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in academic_history %}
+                        <tr>
+                            <td>{{ r.semester }}</td>
+                            <td>{{ r.cgpa }}</td>
+                            <td>{{ r.attendance }}%</td>
+                            <td>{{ r.internal_marks }}</td>
+                            <td>{{ r.backlog_count }}</td>
+                            <td>{{ r.study_hours }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="mt-4 mb-4">
+        <a href="/student/academic/add" class="btn btn-primary">➕ Add New Academic Record</a>
+        <a href="/student/academic/history" class="btn btn-outline-success">📚 Full Academic History</a>
+        <a href="/student/predictions" class="btn btn-outline-info">📊 Prediction History</a>
+    </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}

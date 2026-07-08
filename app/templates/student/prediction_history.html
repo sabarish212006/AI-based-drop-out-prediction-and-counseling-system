@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="row">
+        <div class="col">
+            <h3>📈 Prediction History</h3>
+            <p class="text-muted">Saved AI predictions for your account</p>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card shadow">
+                <div class="card-body">
+
+                    {% if predictions %}
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <input id="predSearch" class="form-control" placeholder="Search predictions..." oninput="applyPredFilters()">
+                        </div>
+                        <div class="col-md-3">
+                            <select id="riskFilter" class="form-select" onchange="applyPredFilters()">
+                                <option value="">All Risks</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5 text-end">
+                            <button class="btn btn-sm btn-outline-secondary" onclick="sortPred('desc')">Sort Date ↓</button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="sortPred('asc')">Sort Date ↑</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="predTable" class="table table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Prediction ID</th>
+                                    <th>Risk Level</th>
+                                    <th>Probability</th>
+                                    <th>Model Version</th>
+                                    <th>Recommendation</th>
+                                    <th>Predicted On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in predictions %}
+                                <tr>
+                                    <td class="col-id">{{ p.prediction_id }}</td>
+                                    <td class="col-risk">
+                                        {% if p.risk_level == 'High' %}
+                                            <span class="badge bg-danger">High</span>
+                                        {% elif p.risk_level == 'Medium' %}
+                                            <span class="badge bg-warning text-dark">Medium</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Low</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="col-prob">
+                                        {{ p.probability if p.probability is defined else p.dropout_probability }}%
+                                        <div class="progress mt-1" style="height: 6px;">
+                                            <div class="progress-bar bg-{{ 'danger' if p.risk_level == 'High' else 'warning' if p.risk_level == 'Medium' else 'success' }}" style="width: {{ p.probability if p.probability is defined else p.dropout_probability }}%"></div>
+                                        </div>
+                                    </td>
+                                    <td>{{ p.semester or 'n/a' }}</td>
+                                    <td>{{ p.recommendation if p.recommendation is defined else p.explanation or '-' }}</td>
+                                    <td class="col-date">
+                                        {{ p.prediction_date if p.prediction_date is defined else p.predicted_on }}
+                                        <br><small class="text-muted">Confidence: {{ p.confidence_score if p.confidence_score is defined else '-' }}%</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <nav>
+                        <ul id="predPagination" class="pagination"></ul>
+                    </nav>
+
+                    {% else %}
+
+                    <div class="alert alert-info">No saved predictions found.</div>
+
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const predRowsPerPage = 6;
+let predPage = 1;
+let predSortDir = 'desc';
+
+function applyPredFilters(){
+    const search = document.getElementById('predSearch').value.toLowerCase();
+    const risk = document.getElementById('riskFilter').value;
+    const table = document.getElementById('predTable');
+    if(!table) return;
+    const rows = Array.from(table.tBodies[0].rows);
+
+    let visible = rows.filter(r => {
+        const text = r.innerText.toLowerCase();
+        const rlevel = r.querySelector('.col-risk').innerText.trim();
+        if(risk && rlevel.indexOf(risk) === -1) return false;
+        if(search && text.indexOf(search) === -1) return false;
+        return true;
+    });
+
+    rows.forEach(r => r.style.display = 'none');
+
+    const totalPages = Math.max(1, Math.ceil(visible.length / predRowsPerPage));
+    if(predPage > totalPages) predPage = totalPages;
+    const start = (predPage-1)*predRowsPerPage;
+    visible.slice(start, start+predRowsPerPage).forEach(r => r.style.display='table-row');
+
+    renderPredPagination(totalPages);
+}
+
+function renderPredPagination(total){
+    const el = document.getElementById('predPagination');
+    el.innerHTML='';
+    for(let i=1;i<=total;i++){
+        const li = document.createElement('li');
+        li.className = 'page-item '+(i===predPage?'active':'');
+        li.innerHTML = `<a class="page-link" href="#" onclick="predGo(${i});return false;">${i}</a>`;
+        el.appendChild(li);
+    }
+}
+function predGo(p){ predPage = p; applyPredFilters(); }
+
+function sortPred(dir){
+    predSortDir = dir;
+    const table = document.getElementById('predTable');
+    if(!table) return;
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.rows);
+    rows.sort((a,b)=>{
+        const da = new Date(a.querySelector('.col-date').innerText);
+        const db = new Date(b.querySelector('.col-date').innerText);
+        return dir==='asc' ? da - db : db - da;
+    });
+    rows.forEach(r=> tbody.appendChild(r));
+    applyPredFilters();
+}
+
+document.addEventListener('DOMContentLoaded', ()=> applyPredFilters());
+</script>
+{% endblock %}

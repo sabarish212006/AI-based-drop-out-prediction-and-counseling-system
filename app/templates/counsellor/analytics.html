@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2>📈 Counsellor Analytics</h2>
+            <p class="text-muted">
+                AI insights, risk trends and student performance metrics.
+            </p>
+        </div>
+
+        <div>
+            <a href="/counsellor/dashboard" class="btn btn-secondary">
+                ← Back to Dashboard
+            </a>
+        </div>
+
+    </div>
+
+    <div class="row g-3">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <h6 class="text-uppercase text-muted">Total Students</h6>
+                    <h3 class="mb-0">{{ stats.total_students }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-danger text-white">
+                <div class="card-body text-center">
+                    <h6 class="text-uppercase">High Risk</h6>
+                    <h3 class="mb-0">{{ stats.high_risk_students }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-warning">
+                <div class="card-body text-center">
+                    <h6 class="text-uppercase text-dark">Medium Risk</h6>
+                    <h3 class="mb-0">{{ stats.medium_risk_students }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-success text-white">
+                <div class="card-body text-center">
+                    <h6 class="text-uppercase">Low Risk</h6>
+                    <h3 class="mb-0">{{ stats.low_risk_students }}</h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mt-4 gy-4">
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-dark text-white">
+                    Risk Distribution
+                </div>
+                <div class="card-body">
+                    <canvas id="riskChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    Academic Performance by Department
+                </div>
+                <div class="card-body">
+                    <canvas id="departmentChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mt-4 gy-4">
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    Students by Year
+                </div>
+                <div class="card-body">
+                    <canvas id="yearChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    AI Summary
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tr>
+                            <th>Total Predictions</th>
+                            <td>{{ stats.total_predictions }}</td>
+                        </tr>
+                        <tr>
+                            <th>Avg. CGPA</th>
+                            <td>{{ stats.academic_summary.average_cgpa }}</td>
+                        </tr>
+                        <tr>
+                            <th>Avg. Attendance</th>
+                            <td>{{ stats.academic_summary.average_attendance }}%</td>
+                        </tr>
+                        <tr>
+                            <th>Recent Counselling Notes</th>
+                            <td>{{ stats.recent_counselling_notes|length }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mt-4">
+
+        <div class="col">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    Department Performance Details
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Avg. CGPA</th>
+                                    <th>Avg. Attendance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in department_performance %}
+                                <tr>
+                                    <td>{{ row.department }}</td>
+                                    <td>{{ row.average_cgpa }}</td>
+                                    <td>{{ row.average_attendance }}%</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-3">
+                                        No departmental performance data available.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const riskChart = document.getElementById('riskChart');
+const departmentChart = document.getElementById('departmentChart');
+const yearChart = document.getElementById('yearChart');
+
+new Chart(riskChart, {
+    type: 'doughnut',
+    data: {
+        labels: ['High', 'Medium', 'Low'],
+        datasets: [{
+            data: [
+                {{ stats.high_risk_students }},
+                {{ stats.medium_risk_students }},
+                {{ stats.low_risk_students }}
+            ],
+            backgroundColor: ['#dc3545', '#ffc107', '#198754'],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+new Chart(departmentChart, {
+    type: 'bar',
+    data: {
+        labels: [{% for row in department_performance %}'{{ row.department }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+        datasets: [
+            {
+                label: 'Avg. CGPA',
+                data: [{% for row in department_performance %}{{ row.average_cgpa }}{% if not loop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: '#0d6efd'
+            },
+            {
+                label: 'Avg. Attendance',
+                data: [{% for row in department_performance %}{{ row.average_attendance }}{% if not loop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: '#20c997'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+new Chart(yearChart, {
+    type: 'line',
+    data: {
+        labels: [{% for row in year_count %}'Year {{ row.year_of_study }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Student Count',
+            data: [{% for row in year_count %}{{ row.student_count }}{% if not loop.last %}, {% endif %}{% endfor %}],
+            borderColor: '#6610f2',
+            backgroundColor: 'rgba(102,16,242,0.2)',
+            fill: true,
+            tension: 0.25
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+{% endblock %}

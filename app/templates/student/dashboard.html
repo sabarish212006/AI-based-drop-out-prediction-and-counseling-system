@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="row mt-3">
+        <div class="col">
+            <h3>🎓 Student Dashboard</h3>
+            <p class="text-muted">Welcome back, {{ user.full_name if user else current_user.email }}</p>
+        </div>
+    </div>
+
+    <!-- STUDENT SUMMARY -->
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <div class="card mb-3">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>{{ user.full_name if user else '' }}</h5>
+                        <p class="mb-0"><strong>Roll:</strong> {{ user.roll_no if user else '-' }} &nbsp; | &nbsp; <strong>Dept:</strong> {{ user.department if user else '-' }} &nbsp; | &nbsp; <strong>Year:</strong> {{ user.year_of_study if user else '-' }}</p>
+                    </div>
+                    <div>
+                        <a href="/student/profile" class="btn btn-outline-secondary">View Profile</a>
+                        <a href="/student/predictions" class="btn btn-outline-info">Prediction History</a>
+                        <a href="/student/academic/history" class="btn btn-outline-success">Academic History</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD CARDS -->
+    <div class="row mt-4">
+
+        <!-- CGPA -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-primary shadow h-100">
+                <div class="card-body text-center">
+
+                    <h5>📘 Latest CGPA</h5>
+
+                    <h2>
+                        {% if latest_record %}
+                            {{ latest_record.cgpa }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-success shadow h-100">
+                <div class="card-body text-center">
+
+                    <h5>📊 Attendance</h5>
+
+                    <h2>
+                        {% if latest_record %}
+                            {{ latest_record.attendance }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Backlogs -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-warning shadow h-100">
+                <div class="card-body text-center">
+
+                    <h5>📚 Backlogs</h5>
+
+                    <h2>
+                        {% if latest_record %}
+                            {{ latest_record.backlog_count }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Prediction -->
+        <div class="col-md-3 mb-3">
+            <div class="card shadow border-info h-100">
+
+                <div class="card-body text-center">
+
+                    <h5>🤖 AI Prediction</h5>
+
+                    {% if prediction %}
+
+                        {% set risk = prediction.get('risk_level', 'Low') %}
+                        {% set prob = prediction.get('probability') or prediction.get('score') or prediction.get('dropout_probability') or 0 %}
+                        {% set confidence = prediction.get('confidence_score', prob) %}
+                        {% set message = prediction.get('message', '') %}
+                        {% set recommendation_text = prediction.get('recommendation') or prediction.get('suggestion') or prediction.get('explanation', '-') %}
+                        {% set risk_class = 'danger' if risk == 'High' else 'warning' if risk == 'Medium' else 'success' %}
+                        {% set progress_width = prob if prob is not none else 0 %}
+
+                        {% if risk == "High" %}
+                            <h2 class="text-danger"><span class="badge bg-danger">{{ risk }}</span></h2>
+                        {% elif risk == "Medium" %}
+                            <h2 class="text-warning"><span class="badge bg-warning text-dark">{{ risk }}</span></h2>
+                        {% else %}
+                            <h2 class="text-success"><span class="badge bg-success">{{ risk }}</span></h2>
+                        {% endif %}
+
+                        <hr>
+
+                        <p class="mb-2"><strong>Risk Score</strong></p>
+                        <h4>{{ prob }}%</h4>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-{{ risk_class }}" role="progressbar" style="width: {{ progress_width }}%"></div>
+                        </div>
+                        <p class="small mt-2 mb-0"><strong>Confidence:</strong> {{ confidence }}%</p>
+                        <p class="small mt-2">Prediction Date: {{ prediction.get('prediction_date') or prediction.get('predicted_on', '-') }}</p>
+                    {% else %}
+
+                        <p>No prediction available.</p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+<!-- ================= ACADEMIC RECORDS ================= -->
+
+<div class="row mt-4">
+
+    <div class="col">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-success text-white">
+
+                📚 Academic Records History
+
+            </div>
+
+            <div class="card-body">
+
+                {% if academic_records %}
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-striped">
+
+                        <thead class="table-dark">
+
+                            <tr>
+                                <th>Semester</th>
+                                <th>CGPA</th>
+                                <th>Attendance</th>
+                                <th>Internal Marks</th>
+                                <th>Backlogs</th>
+                                <th>Study Hours</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for record in academic_records %}
+
+                            <tr>
+
+                                <td>{{ record.semester }}</td>
+                                <td>{{ record.cgpa }}</td>
+                                <td>{{ record.attendance }}%</td>
+                                <td>{{ record.internal_marks }}</td>
+                                <td>{{ record.backlog_count }}</td>
+                                <td>{{ record.study_hours }}</td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                {% else %}
+
+                <div class="alert alert-warning">
+
+                    No Academic Records Available.
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+    <!-- AI RECOMMENDATION -->
+
+    <div class="row mt-4">
+
+        <div class="col">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-info text-white">
+
+                    🤖 AI Recommendation
+
+                </div>
+
+                <div class="card-body">
+
+                    {% if prediction %}
+
+                        <h5 class="text-primary">{{ message }}</h5>
+
+                        <hr>
+
+                        <p><strong>Recommendation</strong></p>
+
+                        <p class="mb-0">{{ recommendation_text }}</p>
+
+                    {% else %}
+
+                        <p>
+
+                            No prediction available.
+
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- NOTIFICATIONS + QUICK ACTIONS -->
+
+    <div class="row mt-5">
+
+        <!-- Notifications -->
+
+        <div class="col-md-6">
+
+            <h5>🔔 Notifications</h5>
+
+            <div class="list-group">
+
+                {% for n in notifications %}
+
+                    <div class="list-group-item">
+
+                        <strong>{{ n.title }}</strong>
+
+                        <br>
+
+                        <small>{{ n.message }}</small>
+
+                    </div>
+
+                {% else %}
+
+                    <p class="text-muted">
+
+                        No notifications found.
+
+                    </p>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        <!-- Quick Actions -->
+
+        <div class="col-md-6">
+
+            <h5>⚡ Quick Actions</h5>
+
+            <div class="list-group">
+
+                <a href="/student/profile"
+                   class="list-group-item list-group-item-action">
+
+                    👤 View Profile
+
+                </a>
+
+                <a href="/student/academic/add"
+                   class="list-group-item list-group-item-action">
+
+                    ➕ Add Academic Record
+
+                </a>
+
+                <a href="/student/summary"
+                   class="list-group-item list-group-item-action">
+
+                    📊 View Academic Summary (API)
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Prediction history preview -->
+<div class="row mt-4">
+    <div class="col">
+        <div class="card shadow">
+            <div class="card-header bg-secondary text-white">Recent Predictions</div>
+            <div class="card-body">
+                {% if prediction_history %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Risk</th>
+                                    <th>Probability</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in prediction_history[:5] %}
+                                <tr>
+                                    <td>{{ p.prediction_id }}</td>
+                                    <td>
+                                        {% if p.risk_level == 'High' %}
+                                            <span class="badge bg-danger">High</span>
+                                        {% elif p.risk_level == 'Medium' %}
+                                            <span class="badge bg-warning text-dark">Medium</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Low</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ p.get('probability') or p.get('score') or p.get('dropout_probability', '-') }}%</td>
+                                    <td>{{ p.predicted_on }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-muted">No recent predictions.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

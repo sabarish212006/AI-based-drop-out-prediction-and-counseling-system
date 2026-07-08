@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2>👨‍🎓 Student Management</h2>
+
+            <p class="text-muted">
+                Manage all registered students
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- Search & Filters -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <div class="col-md-5">
+
+                    <input
+                        type="text"
+                        id="studentSearch"
+                        class="form-control"
+                        placeholder="🔍 Search by Name, Email or Roll No..."
+                        onkeyup="filterStudents()">
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <select id="departmentFilter" class="form-select" onchange="filterStudents()">
+                        <option value="">All Departments</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Electrical">Electrical</option>
+                        <option value="Civil">Civil</option>
+                        <option value="Electronics">Electronics</option>
+                    </select>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <select id="yearFilter" class="form-select" onchange="filterStudents()">
+                        <option value="">All Years</option>
+                        <option value="1">Year 1</option>
+                        <option value="2">Year 2</option>
+                        <option value="3">Year 3</option>
+                        <option value="4">Year 4</option>
+                    </select>
+
+                </div>
+
+                <div class="col-md-3 d-flex gap-2">
+
+                    <select id="riskFilter" class="form-select" onchange="filterStudents()">
+                        <option value="">All Risk Levels</option>
+                        <option value="High">High Risk</option>
+                        <option value="Medium">Medium Risk</option>
+                        <option value="Low">Low Risk</option>
+                    </select>
+
+                    <select id="statusFilter" class="form-select" onchange="filterStudents()">
+                        <option value="">Any Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Students Table -->
+
+    <div class="card shadow">
+
+        <div class="card-header bg-primary text-white">
+
+            Registered Students
+
+        </div>
+
+        <div class="card-body p-0">
+
+            <table class="table table-bordered table-hover mb-0" id="studentTable">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Year</th>
+                        <th>Risk</th>
+                        <th>Status</th>
+                        <th width="260">Actions</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% if students %}
+
+                    {% for student in students %}
+
+                    <tr>
+
+                        <td>{{ student.user_id }}</td>
+
+                        <td>{{ student.full_name }}</td>
+
+                        <td>{{ student.email }}</td>
+
+                        <td>{{ student.department or "-" }}</td>
+
+                        <td>{{ student.year_of_study or "-" }}</td>
+
+                        <td>
+                            {% if student.risk_level == 'High' %}
+                                <span class="badge bg-danger">High</span>
+                            {% elif student.risk_level == 'Medium' %}
+                                <span class="badge bg-warning text-dark">Medium</span>
+                            {% elif student.risk_level == 'Low' %}
+                                <span class="badge bg-success">Low</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Unknown</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+
+                            {% if student.is_active %}
+
+                                <span class="badge bg-success">
+                                    Active
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">
+                                    Inactive
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <!-- VIEW -->
+
+                            <button
+                                class="btn btn-info btn-sm"
+                                data-user-id="{{ student.user_id }}"
+                                onclick="viewStudent(this.dataset.userId)">
+
+                                👁 View
+
+                            </button>
+
+                            <a
+                                href="/admin/student/{{ student.user_id }}"
+                                class="btn btn-secondary btn-sm ms-1">
+                                Details
+                            </a>
+
+                            {% if student.is_active %}
+
+                            <form
+                                action="/admin/user/toggle"
+                                method="POST"
+                                style="display:inline;">
+
+                                <input
+                                    type="hidden"
+                                    name="user_id"
+                                    value="{{ student.user_id }}">
+
+                                <input
+                                    type="hidden"
+                                    name="action"
+                                    value="deactivate">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-danger btn-sm">
+
+                                    Deactivate
+
+                                </button>
+
+                            </form>
+
+                            {% else %}
+
+                            <form
+                                action="/admin/user/toggle"
+                                method="POST"
+                                style="display:inline;">
+
+                                <input
+                                    type="hidden"
+                                    name="user_id"
+                                    value="{{ student.user_id }}">
+
+                                <input
+                                    type="hidden"
+                                    name="action"
+                                    value="activate">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-success btn-sm">
+
+                                    Activate
+
+                                </button>
+
+                            </form>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="6" class="text-center">
+
+                            No students found.
+
+                        </td>
+
+                    </tr>
+
+                {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function filterStudents() {
+
+    const searchInput = document.getElementById("studentSearch").value.toLowerCase();
+    const department = document.getElementById("departmentFilter").value.toLowerCase();
+    const year = document.getElementById("yearFilter").value;
+    const risk = document.getElementById("riskFilter").value.toLowerCase();
+    const status = document.getElementById("statusFilter").value.toLowerCase();
+
+    const table = document.getElementById("studentTable");
+    const rows = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        const text = rows[i].innerText.toLowerCase();
+        const matchesSearch = text.includes(searchInput);
+        const matchesDepartment = !department || (cells[3] && cells[3].innerText.toLowerCase().includes(department));
+        const matchesYear = !year || (cells[4] && cells[4].innerText === year);
+        const matchesRisk = !risk || (cells[5] && cells[5].innerText.toLowerCase().includes(risk));
+        const matchesStatus = !status || (cells[6] && cells[6].innerText.toLowerCase().includes(status));
+
+        rows[i].style.display = (matchesSearch && matchesDepartment && matchesYear && matchesRisk && matchesStatus) ? "" : "none";
+    }
+
+}
+
+function viewStudent(userId) {
+
+    window.location.href = "/admin/student/" + userId;
+
+}
+
+</script>
+
+{% endblock %}

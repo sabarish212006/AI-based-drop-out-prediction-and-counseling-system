@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="row">
+        <div class="col">
+            <h3>📚 Academic History</h3>
+            <p class="text-muted">Complete academic records</p>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card shadow">
+                <div class="card-body">
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <input id="searchInput" class="form-control" placeholder="Search records..." oninput="applyFilters()">
+                        </div>
+                        <div class="col-md-3">
+                            <select id="semesterFilter" class="form-select" onchange="applyFilters()">
+                                <option value="">All Semesters</option>
+                                {% for r in records|map(attribute='semester')|unique %}
+                                <option value="{{ r }}">Semester {{ r }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-5 text-end">
+                            <small class="text-muted">Showing <span id="visibleCount">0</span> of {{ records|length }} records</small>
+                        </div>
+                    </div>
+
+                    {% if records %}
+                    <div class="table-responsive">
+                        <table id="recordsTable" class="table table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Semester</th>
+                                    <th>CGPA</th>
+                                    <th>Attendance</th>
+                                    <th>Internal Marks</th>
+                                    <th>Backlogs</th>
+                                    <th>Study Hours</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in records %}
+                                <tr>
+                                    <td class="col-semester">{{ r.semester }}</td>
+                                    <td>{{ r.cgpa }}</td>
+                                    <td>{{ r.attendance }}%</td>
+                                    <td>{{ r.internal_marks }}</td>
+                                    <td>{{ r.backlog_count }}</td>
+                                    <td>{{ r.study_hours }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" onclick="openEdit({{ r.academic_id }}, {{ r.semester }}, {{ r.cgpa }}, {{ r.attendance }}, {{ r.internal_marks }}, {{ r.backlog_count }}, {{ r.study_hours }})">Edit</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteRecord({{ r.academic_id }})">Delete</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination controls -->
+                    <nav>
+                        <ul id="pagination" class="pagination"></ul>
+                    </nav>
+
+                    {% else %}
+
+                    <div class="alert alert-warning">No academic records found.</div>
+
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Edit Academic Record Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Academic Record</h5>
+                <p class="mb-0 text-muted small" id="display-record-info"></p>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <input type="hidden" id="edit-academic-id" name="academic_id">
+                    
+                    <div class="mb-3">
+                        <label for="edit-semester" class="form-label">Semester</label>
+                        <input type="number" id="edit-semester" name="semester" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit-cgpa" class="form-label">CGPA</label>
+                        <input type="number" step="0.01" id="edit-cgpa" name="cgpa" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit-attendance" class="form-label">Attendance (%)</label>
+                        <input type="number" step="0.01" id="edit-attendance" name="attendance" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit-internal-marks" class="form-label">Internal Marks</label>
+                        <input type="number" step="0.01" id="edit-internal-marks" name="internal_marks" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit-backlog-count" class="form-label">Backlog Count</label>
+                        <input type="number" id="edit-backlog-count" name="backlog_count" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit-study-hours" class="form-label">Study Hours (per day)</label>
+                        <input type="number" step="0.1" id="edit-study-hours" name="study_hours" class="form-control" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">💾 Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openEdit(id, semester, cgpa, attendance, internalMarks, backlogCount, studyHours) {
+    document.getElementById('edit-academic-id').value = id;
+    document.getElementById('display-record-info').innerText = 'Semester ' + semester;
+    document.getElementById('edit-semester').value = semester;
+    document.getElementById('edit-cgpa').value = cgpa;
+    document.getElementById('edit-attendance').value = attendance;
+    document.getElementById('edit-internal-marks').value = internalMarks;
+    document.getElementById('edit-backlog-count').value = backlogCount;
+    document.getElementById('edit-study-hours').value = studyHours;
+    
+    var editModalElement = document.getElementById('editModal');
+    var editModal = new bootstrap.Modal(editModalElement);
+    editModal.show();
+}
+
+document.getElementById('editForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const searchParams = new URLSearchParams();
+    for (const pair of formData) {
+        searchParams.append(pair[0], pair[1]);
+    }
+    
+    fetch('/student/academic/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: searchParams.toString()
+    })
+    .then(r => r.json())
+    .then(j => {
+        if (j.success) {
+            location.reload();
+        } else {
+            alert(j.message || 'Failed to update academic record.');
+        }
+    });
+});
+
+function deleteRecord(id){
+    if(!confirm('Delete academic record?')) return;
+
+    fetch('/student/academic/delete',{
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'academic_id=' + encodeURIComponent(id)
+    }).then(r => r.json()).then(j => {
+        if(j.success) location.reload(); else alert(j.message || 'Failed');
+    });
+}
+</script>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Simple client-side pagination and filtering
+const rowsPerPage = 5;
+let currentPage = 1;
+
+function applyFilters(){
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const semFilter = document.getElementById('semesterFilter').value;
+
+    const table = document.getElementById('recordsTable');
+    if(!table) return;
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.rows);
+
+    let visible = rows.filter(r => {
+        const semester = r.querySelector('.col-semester').innerText;
+        const text = r.innerText.toLowerCase();
+
+        if(semFilter && semester !== semFilter) return false;
+        if(search && text.indexOf(search) === -1) return false;
+        return true;
+    });
+
+    rows.forEach(r => r.style.display = 'none');
+
+    // pagination
+    const totalPages = Math.max(1, Math.ceil(visible.length / rowsPerPage));
+    if(currentPage > totalPages) currentPage = totalPages;
+
+    const start = (currentPage -1) * rowsPerPage;
+    const pageRows = visible.slice(start, start + rowsPerPage);
+    pageRows.forEach(r => r.style.display = 'table-row');
+
+    document.getElementById('visibleCount').innerText = visible.length;
+    renderPagination(totalPages);
+}
+
+function renderPagination(totalPages){
+    const container = document.getElementById('pagination');
+    container.innerHTML = '';
+    for(let i=1;i<=totalPages;i++){
+        const li = document.createElement('li');
+        li.className = 'page-item ' + (i===currentPage? 'active':'');
+        li.innerHTML = `<a class="page-link" href="#" onclick="goPage(${i});return false;">${i}</a>`;
+        container.appendChild(li);
+    }
+}
+
+function goPage(p){ currentPage = p; applyFilters(); }
+
+document.addEventListener('DOMContentLoaded', ()=> applyFilters());
+</script>
+{% endblock %}

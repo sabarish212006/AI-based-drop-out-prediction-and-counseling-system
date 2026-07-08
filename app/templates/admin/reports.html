@@ -1,0 +1,475 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2>📊 AI System Reports</h2>
+
+            <p class="text-muted">
+
+                Analytics & Machine Learning Report
+
+            </p>
+
+        </div>
+
+        <div>
+
+            <a href="/admin/reports/excel"
+               class="btn btn-success">
+
+                📥 Export Excel
+
+            </a>
+
+            <a href="/admin/reports/pdf"
+               class="btn btn-danger">
+
+                📄 Export PDF
+
+            </a>
+
+            <button
+                onclick="window.print()"
+                class="btn btn-dark">
+
+                🖨 Print
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Summary Cards -->
+
+    <div class="row">
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card bg-primary text-white shadow">
+
+                <div class="card-body text-center">
+
+                    <h6>Total Students</h6>
+
+                    <h2>{{ stats.total_students }}</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card bg-danger text-white shadow">
+
+                <div class="card-body text-center">
+
+                    <h6>High Risk</h6>
+
+                    <h2>{{ stats.high_risk_students }}</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card bg-warning shadow">
+
+                <div class="card-body text-center">
+
+                    <h6>Medium Risk</h6>
+
+                    <h2>{{ stats.medium_risk_students }}</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card bg-success text-white shadow">
+
+                <div class="card-body text-center">
+
+                    <h6>Low Risk</h6>
+
+                    <h2>{{ stats.low_risk_students }}</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow border-info">
+                <div class="card-body text-center">
+                    <h6>Average Probability</h6>
+                    <h2>{{ stats.average_probability }}%</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow border-danger">
+                <div class="card-body text-center">
+                    <h6>Highest Probability</h6>
+                    <h2>{{ stats.highest_probability }}%</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow border-success">
+                <div class="card-body text-center">
+                    <h6>Lowest Probability</h6>
+                    <h2>{{ stats.lowest_probability }}%</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+
+    <div class="row mt-4">
+
+        <div class="col-lg-6 mb-4">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-dark text-white">
+
+                    Risk Distribution
+
+                </div>
+
+                <div class="card-body">
+
+                    <canvas id="riskChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-6 mb-4">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-primary text-white">
+
+                    Academic Performance
+
+                </div>
+
+                <div class="card-body">
+
+                    <canvas id="academicChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Academic Summary -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header bg-success text-white">
+
+            📚 Academic Summary
+
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered">
+
+                <tr>
+
+                    <th>Total Academic Records</th>
+
+                    <td>{{ stats.academic_summary.total_records }}</td>
+
+                </tr>
+
+                <tr>
+
+                    <th>Average CGPA</th>
+
+                    <td>{{ stats.academic_summary.average_cgpa }}</td>
+
+                </tr>
+
+                <tr>
+
+                    <th>Average Attendance</th>
+
+                    <td>{{ stats.academic_summary.average_attendance }}%</td>
+
+                </tr>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- Prediction Summary -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header bg-info text-white">
+
+            🤖 Prediction Summary
+
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-striped">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Total Predictions</th>
+
+                        <th>High</th>
+
+                        <th>Medium</th>
+
+                        <th>Low</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+
+                        <td>{{ stats.total_predictions }}</td>
+
+                        <td class="text-danger">
+
+                            {{ stats.high_risk_students }}
+
+                        </td>
+
+                        <td class="text-warning">
+
+                            {{ stats.medium_risk_students }}
+
+                        </td>
+
+                        <td class="text-success">
+
+                            {{ stats.low_risk_students }}
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header bg-secondary text-white">Prediction Trend</div>
+        <div class="card-body">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+
+        <!-- Report Notes -->
+
+    <div class="alert alert-info">
+
+        <h5>📌 Report Notes</h5>
+
+        <ul class="mb-0">
+
+            <li>High Risk students require immediate counselling.</li>
+
+            <li>Medium Risk students should be monitored regularly.</li>
+
+            <li>Low Risk students are academically stable.</li>
+
+            <li>Reports are generated using the AI Random Forest Prediction Model.</li>
+
+            <li>Export this report as PDF or Excel for documentation.</li>
+
+        </ul>
+
+    </div>
+
+</div>
+
+<script>
+
+const riskChart = document.getElementById("riskChart");
+
+new Chart(riskChart, {
+
+    type: "doughnut",
+
+    data: {
+
+        labels: ["High", "Medium", "Low"],
+
+        datasets: [{
+
+            data: [
+
+                {{ stats.high_risk_students | tojson | safe }},
+
+                {{ stats.medium_risk_students | tojson | safe }},
+
+                {{ stats.low_risk_students | tojson | safe }}
+
+            ],
+
+            backgroundColor: [
+
+                "#dc3545",
+
+                "#ffc107",
+
+                "#198754"
+
+            ],
+
+            borderWidth: 2
+
+        }]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        plugins: {
+
+            legend: {
+
+                position: "bottom"
+
+            }
+
+        }
+
+    }
+
+});
+
+const academicChart = document.getElementById("academicChart");
+
+new Chart(academicChart, {
+
+    type: "bar",
+
+    data: {
+
+        labels: [
+
+            "Average CGPA",
+
+            "Average Attendance"
+
+        ],
+
+        datasets: [{
+
+            label: "Academic Statistics",
+
+            data: [
+
+                {{ stats.academic_summary.average_cgpa | tojson | safe }},
+
+                {{ stats.academic_summary.average_attendance | tojson | safe }}
+
+            ],
+
+            backgroundColor: [
+
+                "#0d6efd",
+
+                "#20c997"
+
+            ]
+
+        }]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        scales: {
+
+            y: {
+
+                beginAtZero: true
+
+            }
+
+        }
+
+    }
+
+});
+
+const trendChart = document.getElementById("trendChart");
+
+new Chart(trendChart, {
+    type: "line",
+    data: {
+        labels: Array.from({ length: {{ stats.prediction_trend|length }} }, (_, i) => `P${i + 1}`),
+        datasets: [{
+            label: "Prediction Probability",
+            data: {{ stats.prediction_trend | tojson | safe }},
+            borderColor: "#0d6efd",
+            backgroundColor: "rgba(13, 110, 253, 0.2)",
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: { beginAtZero: true, max: 100 }
+        }
+    }
+});
+
+</script>
+
+{% endblock %}
+

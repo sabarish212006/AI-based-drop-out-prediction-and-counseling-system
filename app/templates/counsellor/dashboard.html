@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>👨‍🏫 Counsellor Dashboard</h2>
+            <p class="text-muted">AI student monitoring, counselling insights and risk tracking.</p>
+        </div>
+        <div>
+            <a href="/counsellor/analytics" class="btn btn-outline-primary">
+                Analytics
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-danger text-white">
+                <div class="card-body text-center">
+                    <h6 class="text-uppercase mb-2">High Risk</h6>
+                    <h2>{{ stats.high_risk_students }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-warning">
+                <div class="card-body text-center">
+                    <h6 class="text-uppercase text-dark mb-2">Medium Risk</h6>
+                    <h2>{{ stats.medium_risk_students }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-success text-white">
+                <div class="card-body text-center">
+                    <h6 class="text-uppercase mb-2">Low Risk</h6>
+                    <h2>{{ stats.low_risk_students }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-primary text-white">
+                <div class="card-body text-center">
+                    <h6 class="text-uppercase mb-2">Total Students</h6>
+                    <h2>{{ stats.total_students }}</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mt-4 g-4">
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">Risk Distribution</div>
+                <div class="card-body">
+                    <canvas id="riskChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">At-Risk Student Snapshot</div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for student in at_risk_students %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ student.roll_no }}</strong>
+                                <div class="small text-muted">{{ student.department }} | {{ student.year_of_study }} Year</div>
+                            </div>
+                            <span class="badge bg-{{ 'danger' if student.risk_level=='High' else 'warning' if student.risk_level=='Medium' else 'success' }} text-dark">
+                                {{ student.risk_level }}
+                            </span>
+                        </li>
+                        {% endfor %}
+                        {% if not at_risk_students %}
+                        <li class="list-group-item text-center text-muted">No high/medium risk students at the moment.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mt-4">
+        <div class="col">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">Recent Counselling Notes</div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Student</th>
+                                    <th>Risk</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for note in recent_notes %}
+                                <tr>
+                                    <td>{{ note.follow_up_date }}</td>
+                                    <td>{{ note.roll_no }}</td>
+                                    <td>{{ note.risk_level }}</td>
+                                     <td>
+                                         {% if note.status == 'Completed' %}
+                                             <span class="badge bg-success">Completed</span>
+                                         {% elif note.status == 'In Progress' %}
+                                             <span class="badge bg-info">In Progress</span>
+                                         {% else %}
+                                             <span class="badge bg-warning text-dark">Pending</span>
+                                         {% endif %}
+                                     </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">No recent counselling notes found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+fetch("/api/dashboard/stats")
+
+.then(r=>r.json())
+
+.then(res=>{
+
+let d=res.data;
+
+new Chart(document.getElementById("riskChart"),{
+
+type:"doughnut",
+
+data:{
+
+labels:["High","Medium","Low"],
+
+datasets:[{
+
+data:[
+d.high_risk_students,
+d.medium_risk_students,
+d.low_risk_students
+]
+
+}]
+
+}
+
+});
+
+});
+
+</script>
+
+{% endblock %}

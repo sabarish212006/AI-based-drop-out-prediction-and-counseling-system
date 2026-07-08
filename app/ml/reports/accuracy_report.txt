@@ -1,0 +1,15 @@
+AI Dropout Prediction Model Evaluation
+==================================================
+
+Accuracy : 98.80%
+
+Classification Report
+----------------------------
+              precision    recall  f1-score   support
+
+           0       0.99      1.00      0.99       601
+           1       0.99      0.98      0.98       399
+
+    accuracy                           0.99      1000
+   macro avg       0.99      0.99      0.99      1000
+weighted avg       0.99      0.99      0.99      1000

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="row">
+        <div class="col">
+            <h3>👤 Student Profile</h3>
+            <p class="text-muted">Your personal and academic information</p>
+        </div>
+    </div>
+
+    <!-- PROFILE CARD -->
+    <div class="row mt-4">
+
+        <div class="col-md-6">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-info text-white">
+                    <h5>Basic Information</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <p><strong>Full Name:</strong> {{ user.full_name }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Phone:</strong> {{ user.phone or 'Not Provided' }}</p>
+                    <p><strong>Role:</strong> {{ user.role }}</p>
+                    <p><strong>User ID:</strong> {{ user.user_id }}</p>
+                    <p><strong>Student ID:</strong> {{ user.student_id if user.student_id is defined else '-' }}</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SYSTEM INFO -->
+        <div class="col-md-6">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-dark text-white">
+                    <h5>System Information</h5>
+                </div>
+
+                <div class="card-body">
+
+                    
+                    <p><strong>Account Status:</strong>
+                        {% if user.is_active %}
+                            <span class="text-success">Active</span>
+                        {% else %}
+                            <span class="text-danger">Inactive</span>
+                        {% endif %}
+                    </p>
+
+                    <p><strong>Login Status:</strong> Logged In</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+<!-- STUDENT INFORMATION -->
+
+<div class="row mt-4">
+
+    <div class="col">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-success text-white">
+
+                <h5>🎓 Student Information</h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-bordered">
+
+                    <tr>
+                        <th width="30%">Roll Number</th>
+                        <td>{{ user.roll_no }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Department</th>
+                        <td>{{ user.department }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Year of Study</th>
+                        <td>{{ user.year_of_study }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Gender</th>
+                        <td>{{ user.gender }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Date of Birth</th>
+                        <td>{{ user.date_of_birth }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Address</th>
+                        <td>{{ user.address }}</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+    <!-- ACTIONS -->
+    <div class="row mt-4">
+
+        <div class="col">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-primary text-white">
+                    <h5>Actions</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <a href="/student/academic/add" class="btn btn-success">
+                        ➕ Add Academic Record
+                    </a>
+
+                    <a href="/student/dashboard" class="btn btn-secondary">
+                        📊 Back to Dashboard
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

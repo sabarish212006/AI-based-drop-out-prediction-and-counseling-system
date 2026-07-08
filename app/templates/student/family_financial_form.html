@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="row">
+        <div class="col">
+            <h3>🏠 Family & Financial Details</h3>
+            <p class="text-muted">This information helps improve dropout prediction accuracy</p>
+        </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="row mt-3">
+
+        <div class="col-md-6">
+
+            <div class="card shadow">
+
+                <div class="card-body">
+
+                    <form method="POST" action="/student/family-financial/add">
+
+                        <div class="mb-3">
+                            <label>Family Income (Monthly)</label>
+                            <input type="number" name="family_income" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Parents Education Level</label>
+                            <select name="parents_education" class="form-control" required>
+                                <option value="primary">Primary</option>
+                                <option value="secondary">Secondary</option>
+                                <option value="higher_secondary">Higher Secondary</option>
+                                <option value="graduate">Graduate</option>
+                                <option value="post_graduate">Post Graduate</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Number of Dependents</label>
+                            <input type="number" name="dependents" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Financial Support Available?</label>
+                            <select name="financial_support" class="form-control" required>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Part-time Job</label>
+                            <select name="part_time_job" class="form-control" required>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            💾 Save Family Data
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- INFO PANEL -->
+        <div class="col-md-6">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-info text-white">
+                    📊 Why this data matters?
+                </div>
+
+                <div class="card-body">
+
+                    <ul>
+                        <li>💰 Financial stress affects dropout risk</li>
+                        <li>👨‍👩‍👧 Family support improves retention</li>
+                        <li>💼 Part-time job = workload pressure factor</li>
+                        <li>🎓 Education background = learning environment indicator</li>
+                    </ul>
+
+                    <hr>
+
+                    <p class="text-muted">
+                        This data will be combined with academic performance for ML prediction.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

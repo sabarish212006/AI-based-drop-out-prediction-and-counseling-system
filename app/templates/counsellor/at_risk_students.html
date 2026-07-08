@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="row mb-4">
+
+        <div class="col">
+
+            <h2>🚨 At-Risk Students</h2>
+
+            <p class="text-muted">
+                Students requiring counselling based on AI prediction.
+            </p>
+
+        </div>
+
+    </div>
+
+    {% if students %}
+
+    <div class="card shadow">
+
+        <div class="card-header bg-danger text-white">
+
+            <h5 class="mb-0">
+
+                High & Medium Risk Students
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered table-hover align-middle">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>Student ID</th>
+
+                        <th>Risk Level</th>
+
+                        <th>Probability</th>
+
+                        <th>Prediction</th>
+
+                        <th>Suggestion</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for s in students %}
+
+                    <tr>
+
+                        <td>
+
+                            {{ s.student_id }}
+
+                        </td>
+
+                        <td>
+
+                            {% if s.risk_level == "High" %}
+
+                                <span class="badge bg-danger">
+
+                                    High
+
+                                </span>
+
+                            {% elif s.risk_level == "Medium" %}
+
+                                <span class="badge bg-warning text-dark">
+
+                                    Medium
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-success">
+
+                                    Low
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            {{ s.score }} %
+
+                        </td>
+
+                        <td>
+
+                            {% if s.prediction == 1 %}
+
+                                Dropout Risk
+
+                            {% else %}
+
+                                Safe
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            {{ s.suggestion }}
+
+                        </td>
+
+                        <td>
+
+                            <a href="/counsellor/student/{{ s.student_id }}"
+                               class="btn btn-primary btn-sm">
+
+                                View Details
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <div class="alert alert-success">
+
+        <h5>🎉 Great News!</h5>
+
+        <p class="mb-0">
+
+            No High Risk or Medium Risk students found.
+
+        </p>
+
+    </div>
+
+    {% endif %}
+
+    <div class="mt-4">
+
+        <a href="/counsellor/dashboard"
+           class="btn btn-secondary">
+
+            ← Back to Dashboard
+
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

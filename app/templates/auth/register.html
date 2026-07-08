@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row justify-content-center mt-4">
+
+    <div class="col-md-6">
+
+        <div class="card shadow-lg">
+
+            <div class="card-header bg-success text-white text-center">
+                <h4>📝 Register</h4>
+            </div>
+
+            <div class="card-body">
+
+                <!-- ERROR MESSAGE -->
+                {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                {% endif %}
+
+                <!-- REGISTER FORM -->
+                <form method="POST" action="/register">
+
+                    <div class="mb-3">
+                        <label>Full Name</label>
+                        <input type="text" name="full_name" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Phone (Optional)</label>
+                        <input type="text" name="phone" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Role</label>
+                        <select name="role" class="form-control" required>
+                            <option value="Student">Student</option>
+                            <option value="Counsellor">Counsellor</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        Create Account
+                    </button>
+
+                </form>
+
+                <hr>
+
+                <p class="text-center">
+                    Already have an account?
+                    <a href="/login">Login</a>
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,40 @@
+body{
+    background:#f4f6f9;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+.card{
+    border:none;
+    border-radius:12px;
+    transition:.25s;
+}
+
+.card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+
+.card h2{
+    font-weight:bold;
+}
+
+.table{
+    background:white;
+}
+
+canvas{
+    width:100%!important;
+    height:350px!important;
+}
+
+footer{
+    margin-top:50px;
+}
+
+.list-group-item:hover{
+    background:#f8f9fa;
+}
+
+.badge{
+    font-size:14px;
+}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="row">
+        <div class="col text-center">
+            <h2>🤖 Dropout Prediction Result</h2>
+            <p class="text-muted">AI-based academic risk analysis</p>
+        </div>
+    </div>
+
+    <!-- RESULT CARD -->
+    <div class="row justify-content-center mt-4">
+
+        <div class="col-md-6">
+
+            <div class="card shadow text-center">
+
+                <div class="card-header
+                    {% if result.risk_level == 'High' %}
+                        bg-danger
+                    {% elif result.risk_level == 'Medium' %}
+                        bg-warning
+                    {% else %}
+                        bg-success
+                    {% endif %}
+                    text-white">
+
+                    <h4>Risk Level: {{ result.risk_level }}</h4>
+
+                </div>
+
+                <div class="card-body">
+
+                    <!-- SCORE -->
+                    <h5>📊 Prediction Score</h5>
+                    <h2>{{ result.score }}%</h2>
+
+                    <hr>
+
+                    <!-- MESSAGE -->
+                    <p>
+                        {{ result.message }}
+                    </p>
+
+                    <hr>
+
+                    <!-- COUNSELLING SUGGESTION -->
+                    <h5>👨‍🏫 Counselling Suggestion</h5>
+
+                    <p class="text-muted">
+                        {{ result.suggestion }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="row mt-4 text-center">
+
+        <div class="col">
+
+            <a href="/student/dashboard" class="btn btn-primary">
+                🏠 Back to Dashboard
+            </a>
+
+            <a href="/student/academic/add" class="btn btn-success">
+                ➕ Add New Data
+            </a>
+
+            <a href="/counsellor/at-risk" class="btn btn-warning">
+                👨‍🏫 View Counsellor Advice
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
