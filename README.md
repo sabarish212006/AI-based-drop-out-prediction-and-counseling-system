@@ -156,61 +156,6 @@ AI-based-drop-out-prediction-and-counseling-system/
 └── README.md
 ```
 
----
-
-## Installation
-
-### Clone Repository
-
-```bash
-git clone https://github.com/sabarish212006/AI-based-drop-out-prediction-and-counseling-system.git
-```
-
-### Navigate to Project Folder
-
-```bash
-cd AI-based-drop-out-prediction-and-counseling-system
-```
-
-### Create Virtual Environment
-
-```bash
-python -m venv .venv
-```
-
-### Activate Virtual Environment
-
-Windows
-
-```bash
-.venv\Scripts\activate
-```
-
-### Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### Configure Database
-
-- Create a MySQL database.
-- Import the SQL file available in the database folder.
-- Update the database credentials in the configuration file.
-
-### Run the Application
-
-```bash
-python run.py
-```
-
-The application will start on:
-
-```
-http://127.0.0.1:5000
-```
-
----
 
 ## Future Enhancements
 
